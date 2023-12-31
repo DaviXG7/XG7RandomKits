@@ -1,11 +1,56 @@
 package com.xg7network.xg7randomkits;
 
+import com.xg7network.xg7randomkits.Configs.ConfigManager;
+import com.xg7network.xg7randomkits.Configs.ConfigType;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class XG7RandomKits extends JavaPlugin {
 
+    public static String prefix = ChatColor.BLUE + "[XG7 " + ChatColor.RED + "R" + ChatColor.GOLD + "K" + ChatColor.YELLOW + "] " + ChatColor.RESET;
+    private static XG7RandomKits plugin;
+
+
+    public static ConfigManager configManager;
+    public static boolean placeholderapi;
+
+
+
     @Override
     public void onEnable() {
+
+        this.getServer().getConsoleSender().sendMessage(prefix + "Loading...");
+        this.getServer().getConsoleSender().sendMessage(ChatColor.BLUE + "__   __  ___   ______     " + ChatColor.RED + " _____   " + ChatColor.GOLD + "_  __");
+        this.getServer().getConsoleSender().sendMessage(ChatColor.BLUE + "\\ \\ / / / __| |___   /   " + ChatColor.RED + " |  __ \\ " + ChatColor.GOLD + "| |/ /");
+        this.getServer().getConsoleSender().sendMessage(ChatColor.BLUE + " \\ v / | |  _     / /    " + ChatColor.RED + " | |__) |" + ChatColor.GOLD + "|   / ");
+        this.getServer().getConsoleSender().sendMessage(ChatColor.BLUE + " / . \\ | |_| |   / /     " + ChatColor.RED + " |  _  / " + ChatColor.GOLD + "|   \\ ");
+        this.getServer().getConsoleSender().sendMessage(ChatColor.BLUE + "/_/ \\_\\ \\____|  /_/      " + ChatColor.RED + " |_| \\_\\ " + ChatColor.GOLD + "|_|\\_\\");
+
+        try {
+            Class.forName("org.spigotmc.SpigotConfig");
+        } catch (ClassNotFoundException var4) {
+            this.getServer().getConsoleSender().sendMessage("                       SPIGOT NOT DETECTED                     ");
+            this.getServer().getConsoleSender().sendMessage("THIS PLUGIN NEEDS SPIGOT TO WORK!                              ");
+            this.getServer().getConsoleSender().sendMessage("DOWNLOAD HERE: https://www.spigotmc.org/wiki/spigot-installation/.");
+            this.getServer().getConsoleSender().sendMessage("THE PLUGIN WILL DISABLE!                                         ");
+            this.getPluginLoader().disablePlugin(this);
+            return;
+        }
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
+
+            this.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "It's recommended to install PlaceholderAPI");
+            this.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "to get more resourses!");
+
+        }
+
+        placeholderapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+
+        configManager = new ConfigManager();
+        for (ConfigType type : ConfigType.values()) configManager.loadConfig(type);
+
+        plugin = this;
         // Plugin startup logic
 
     }
@@ -13,5 +58,9 @@ public final class XG7RandomKits extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+    }
+
+    public static XG7RandomKits getPlugin() {
+        return plugin;
     }
 }
