@@ -1,0 +1,8 @@
+name: XG7RandomKits
+version: '${project.version}'
+main: com.xg7network.xg7randomkits.XG7RandomKits
+api-version: '1.16'
+softdepend: [PlaceholderAPI]
+authors: [DaviXG7]
+description: Better random kits plugin
+website: www.xg7network.com
