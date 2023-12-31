@@ -1,6 +1,18 @@
 package com.xg7network.xg7randomkits.Utils.Text;
 
-import com.xg7network.xg7lobby.Utils.Other.PluginUtil;
+/*
+
+    This class was made by DaviXG7 to make it
+    easier to handle the plugin texts.
+
+    The class is free to use if this text is
+    copied into your plugin and your plugin is free.
+
+    Thanks for reading/using my code <3
+
+ */
+
+import com.xg7network.xg7randomkits.Utils.PluginUtil;
 import org.bukkit.entity.Player;
 
 public class CenterText {
