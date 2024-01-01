@@ -1,10 +1,7 @@
-package com.xg7network.xg7randomkits.Region;
+package com.xg7network.xg7randomkits.Module.Region;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
-
-import java.nio.Buffer;
 
 public class Region {
 

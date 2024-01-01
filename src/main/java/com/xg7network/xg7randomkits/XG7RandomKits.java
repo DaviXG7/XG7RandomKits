@@ -3,8 +3,8 @@ package com.xg7network.xg7randomkits;
 import com.xg7network.xg7randomkits.Configs.ConfigManager;
 import com.xg7network.xg7randomkits.Configs.ConfigType;
 import com.xg7network.xg7randomkits.DefaultCommands.TabCompleter;
-import com.xg7network.xg7randomkits.Region.Handler.RegionCommand;
-import com.xg7network.xg7randomkits.Region.Handler.RegionManager;
+import com.xg7network.xg7randomkits.Module.Region.Handler.RegionCommand;
+import com.xg7network.xg7randomkits.Module.Region.Handler.RegionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -60,7 +60,7 @@ public final class XG7RandomKits extends JavaPlugin {
 
         this.getCommand("xg7rkregion").setExecutor(new RegionCommand());
         this.getCommand("xg7rkregion").setTabCompleter(new TabCompleter());
-        this.getServer().getPluginManager().registerEvents(new RegionManager(), this);
+        this.getServer().getPluginManager().registerEvents(new RegionManager(this), this);
 
         // Plugin startup logic
 

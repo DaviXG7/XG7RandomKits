@@ -1,4 +1,4 @@
-package com.xg7network.xg7randomkits.Region.Handler;
+package com.xg7network.xg7randomkits.Module.Region.Handler;
 
 import com.xg7network.xg7randomkits.Configs.ErrorMessages;
 import com.xg7network.xg7randomkits.Utils.PluginUtil;
@@ -7,9 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
 
 public class RegionCommand implements CommandExecutor, Listener {
 
@@ -33,18 +31,32 @@ public class RegionCommand implements CommandExecutor, Listener {
         }
 
         switch (strings[0]) {
-            case "set" -> {
-                RegionManager.setToRegionMode(player, RegionCase.SET);
-            }
+            case "set" -> RegionManager.setToRegionMode(player, RegionCase.SET);
+
+
             case "save" -> {
-                RegionManager.action(RegionCase.CHECK, player);
+                RegionManager.setToRegionMode(player, RegionCase.SET);
+                RegionManager.action(RegionCase.SAVE, player);
             }
-            case "cancel" -> {
-                RegionManager.removeToRegionMode(player);
+
+            case "check" -> RegionManager.action(RegionCase.CHECK, player);
+
+            case "cancel" ->  {
+                if (RegionManager.contains(player))
+                    RegionManager.removeToRegionMode(player);
+                else
+                    TextUtil.send("&cYou are not in region mode!", player);
             }
+
             case "delete" -> {
-                RegionManager.setToRegionMode(player, RegionCase.REMOVE);
+                if (RegionManager.getRegion() == null) {
+                    TextUtil.sendActionBar("&cThe region does not exist!", player);
+                    break;
+                }
+                RegionManager.action(RegionCase.REMOVE, player);
             }
+
+
         }
         return true;
 

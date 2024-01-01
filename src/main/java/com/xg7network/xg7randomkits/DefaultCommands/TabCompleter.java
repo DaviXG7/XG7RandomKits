@@ -16,7 +16,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         List<String> results = new ArrayList<>();
 
         switch (command.getName()) {
-            case "region":
+            case "xg7rkregion":
                 if (strings.length == 1) {
                     results.add("set");
                     results.add("delete");

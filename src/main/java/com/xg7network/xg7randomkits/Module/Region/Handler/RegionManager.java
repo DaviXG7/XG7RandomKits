@@ -1,9 +1,12 @@
-package com.xg7network.xg7randomkits.Region.Handler;
+package com.xg7network.xg7randomkits.Module.Region.Handler;
 
 import com.xg7network.xg7randomkits.Configs.ConfigType;
-import com.xg7network.xg7randomkits.Region.Region;
+import com.xg7network.xg7randomkits.Module.Module;
+import com.xg7network.xg7randomkits.Module.ModuleManager;
+import com.xg7network.xg7randomkits.Module.Region.Region;
 import com.xg7network.xg7randomkits.Utils.PluginInventories.Item;
 import com.xg7network.xg7randomkits.Utils.Text.TextUtil;
+import com.xg7network.xg7randomkits.XG7RandomKits;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -15,7 +18,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.util.HashMap;
@@ -24,7 +26,7 @@ import java.util.UUID;
 import static com.xg7network.xg7randomkits.XG7RandomKits.configManager;
 import static com.xg7network.xg7randomkits.XG7RandomKits.prefix;
 
-public class RegionManager implements Listener {
+public class RegionManager extends Module implements Listener {
 
     private static final HashMap<UUID, PlayerInventory> regionPlayers = new HashMap<>();
 
@@ -37,19 +39,23 @@ public class RegionManager implements Listener {
 
     //Region modes
     private static final Item set = new Item(Material.BLAZE_ROD, "&a&lSet region", "&bClick to set the region", true, 1, 1, null);
-    private static final Item check = new Item(Material.WRITABLE_BOOK, "&a&lCheck", "&bClick to check if you are in the region", true, 4, 1, null);
-    private static final Item delete = new Item(Material.LAVA_BUCKET, "&a&lDelete", "&bClick to delete the current region", true, 6, 1, null);
+    private static final Item check = new Item(Material.BOOK, "&a&lCheck", "&bClick to check if you are in the region", true, 4, 1, null);
+    private static final Item delete = new Item(Material.BARRIER, "&a&lDelete", "&bClick to delete the current region", true, 6, 1, null);
     private static final Item exit = new Item(Material.REDSTONE_BLOCK, "&c&lExit", "&bClick to leave region mode", false, 9, 1, null);
 
     // Set Mode
     private static final Item regioni = new Item(Material.BLAZE_ROD, "&a&lSet REGION", "&bClick to set the region", true, 1, 1, null);
     private static final Item floor = new Item(Material.STICK, "&a&lSet FLOOR", "&bClick to set the region's floor", true, 2, 1, null);
     private static final Item saveRegion = new Item(Material.DIAMOND, "&a&lSave", "&bClick to save the region", true, 8, 1, null);
-    private static final Item back = new Item(Material.REDSTONE_BLOCK, "&c&lBACK", "&bClick to back", false, 9, 1, null);
+    private static final Item back = new Item(Material.REDSTONE_BLOCK, "&c&lCancel", "&bClick to cancel", false, 9, 1, null);
 
     //Delete mode
     private static final Item yes = new Item(Material.EMERALD, "&a&lYES", "", false, 4, 1, null);
     private static final Item no = new Item(Material.REDSTONE, "&c&lNO", "", false, 6, 1, null);
+
+    public RegionManager(XG7RandomKits plugin) {
+        super(plugin);
+    }
 
     public static boolean isInRegionMode(Player player) {
         return regionPlayers.containsKey(player.getUniqueId());
@@ -59,7 +65,7 @@ public class RegionManager implements Listener {
 
         if (!regionPlayers.containsKey(player.getUniqueId())) {
             regionPlayers.put(player.getUniqueId(), player.getInventory());
-            TextUtil.send("&aYou are now in region mode!", player);
+            TextUtil.sendActionBar(prefix + "&aYou are now in region mode!", player);
         }
 
         player.getInventory().clear();
@@ -82,7 +88,7 @@ public class RegionManager implements Listener {
                 back.setItem(player);
                 saveRegion.setItem(player);
 
-                TextUtil.send("&aYou are now in set region mode!", player);
+                TextUtil.sendActionBar("&aYou are now in set region mode!", player);
                 TextUtil.send("&bUse the blaze rod to set the region (Left click) pos 1 (Right click) pos 2;", player);
                 TextUtil.send("&bUse the stick to set the region's floor (Left click) pos 1 (Right click) pos 2;", player);
                 TextUtil.send("&bThen use the diamond to save the region!", player);
@@ -93,9 +99,9 @@ public class RegionManager implements Listener {
 
                 yes.setItem(player);
                 no.setItem(player);
-                TextUtil.send("&aAre you sure you want to delete the region?", player);
+                TextUtil.sendActionBar("&cAre you sure you want to delete the region?", player);
 
-                return;
+
         }
 
     }
@@ -111,9 +117,13 @@ public class RegionManager implements Listener {
             player.getInventory().setExtraContents(regionPlayers.get(player.getUniqueId()).getExtraContents());
             regionPlayers.remove(player.getUniqueId());
 
-            TextUtil.send(prefix + "&cYou are no longer in region mode!", player);
+            TextUtil.sendActionBar(prefix + "&cYou are no longer in region mode!", player);
         }
 
+    }
+
+    public static boolean contains(Player player) {
+        return regionPlayers.containsKey(player.getUniqueId());
     }
 
     public static void loadRegion() {
@@ -196,11 +206,14 @@ public class RegionManager implements Listener {
 
                     TextUtil.send("&bThe region has been saved!", player);
 
+                    tempFloor1 = null;
+                    tempFloor2 = null;
+                    tempPos1 = null;
+                    tempPos2 = null;
+
                 } else {
                     TextUtil.send("&cCannot save a null location!", player);
                 }
-
-                setToRegionMode(player, RegionCase.DEFAULT);
 
                 return;
 
@@ -208,14 +221,40 @@ public class RegionManager implements Listener {
 
                 if (region != null) {
 
-                    TextUtil.send("&aRegion: ", player);
-                    TextUtil.send(String.format("&aTop: %d, %d, %d", (int) region.getTopPos().getX(), (int) region.getTopPos().getY(), (int) region.getTopPos().getZ()), player);
-                    TextUtil.send(String.format("&aBottom: %d, %d, %d", (int) region.getBottomPos().getX(), (int) region.getBottomPos().getY(), (int) region.getBottomPos().getZ()), player);
-                    TextUtil.send("&aIn Region: " + region.isInRegion(player.getLocation()), player);
+
+
+                    TextUtil.sendActionBar(String.format("&aRegion: &fTop: &b%d&f, &b%d&f, &b%d&f &fBottom: &b%d&f, &b%d&f, &b%d&f &6In Region: &b" + region.isInRegion(player.getLocation()), (int) region.getTopPos().getX(), (int) region.getTopPos().getY(), (int) region.getTopPos().getZ(), (int) region.getBottomPos().getX(), (int) region.getBottomPos().getY(), (int) region.getBottomPos().getZ()), player);
 
                 } else {
-                    TextUtil.send("&cThe region has not yet been placed!", player);
+                    TextUtil.sendActionBar("&cThe region has not yet been placed!", player);
                 }
+                return;
+
+            case REMOVE:
+                configManager.getConfig(ConfigType.DATA).set("region.world", null);
+
+                configManager.getConfig(ConfigType.DATA).set("region.region.first.x", null);
+                configManager.getConfig(ConfigType.DATA).set("region.region.first.y", null);
+                configManager.getConfig(ConfigType.DATA).set("region.region.first.z", null);
+
+                configManager.getConfig(ConfigType.DATA).set("region.region.second.x", null);
+                configManager.getConfig(ConfigType.DATA).set("region.region.second.y", null);
+                configManager.getConfig(ConfigType.DATA).set("region.region.second.z", null);
+
+                configManager.getConfig(ConfigType.DATA).set("region.floor.first.x", null);
+                configManager.getConfig(ConfigType.DATA).set("region.floor.first.y", null);
+                configManager.getConfig(ConfigType.DATA).set("region.floor.first.z", null);
+
+                configManager.getConfig(ConfigType.DATA).set("region.floor.second.x", null);
+                configManager.getConfig(ConfigType.DATA).set("region.floor.second.y", null);
+                configManager.getConfig(ConfigType.DATA).set("region.floor.second.z", null);
+
+                configManager.saveConfig(ConfigType.DATA);
+
+                loadRegion();
+
+                TextUtil.send("&aThe region has been deleted!", player);
+
                 return;
         }
     }
@@ -245,7 +284,7 @@ public class RegionManager implements Listener {
 
                         tempPos1 = event.getClickedBlock().getLocation();
 
-                        TextUtil.send(String.format("&aPos 1 has been positioned on: %d, %d, %d", (int) tempPos1.getX(), (int) tempPos1.getY(), (int) tempPos1.getZ()), player);
+                        TextUtil.sendActionBar(String.format("&aPos 1 has been positioned on: %d, %d, %d", (int) tempPos1.getX(), (int) tempPos1.getY(), (int) tempPos1.getZ()), player);
 
 
 
@@ -253,7 +292,7 @@ public class RegionManager implements Listener {
 
                         tempFloor1 = event.getClickedBlock().getLocation();
 
-                        TextUtil.send(String.format("&aFloor Pos 1 has been positioned on: %d, %d, %d", (int) tempFloor1.getX(), (int) tempFloor1.getY(), (int) tempFloor1.getZ()), player);
+                        TextUtil.sendActionBar(String.format("&aFloor Pos 1 has been positioned on: %d, %d, %d", (int) tempFloor1.getX(), (int) tempFloor1.getY(), (int) tempFloor1.getZ()), player);
 
                     }
 
@@ -263,7 +302,7 @@ public class RegionManager implements Listener {
 
                         tempPos2 = event.getClickedBlock().getLocation();
 
-                        TextUtil.send(String.format("&aPos 2 has been positioned on: %d, %d, %d", (int) tempPos2.getX(), (int) tempPos2.getY(), (int) tempPos2.getZ()), player);
+                        TextUtil.sendActionBar(String.format("&aPos 2 has been positioned on: %d, %d, %d", (int) tempPos2.getX(), (int) tempPos2.getY(), (int) tempPos2.getZ()), player);
 
 
 
@@ -271,7 +310,7 @@ public class RegionManager implements Listener {
 
                         tempFloor2 = event.getClickedBlock().getLocation();
 
-                        TextUtil.send(String.format("&aFloor Pos 2 has been positioned on: %d, %d, %d", (int) tempFloor2.getX(), (int) tempFloor2.getY(), (int) tempFloor2.getZ()), player);
+                        TextUtil.sendActionBar(String.format("&aFloor Pos 2 has been positioned on: %d, %d, %d", (int) tempFloor2.getX(), (int) tempFloor2.getY(), (int) tempFloor2.getZ()), player);
 
                     }
 
@@ -291,7 +330,14 @@ public class RegionManager implements Listener {
 
                 } else if (player.getItemInHand().equals(delete.getItemStack())) {
 
-                    setToRegionMode(player, RegionCase.REMOVE);
+                    if (region == null) {
+
+                        TextUtil.sendActionBar("&cThe region does not exist!", player);
+
+                    } else {
+                        setToRegionMode(player, RegionCase.REMOVE);
+                    }
+
                     
                 } else if (player.getItemInHand().equals(exit.getItemStack())) {;
 
@@ -304,6 +350,8 @@ public class RegionManager implements Listener {
 
                     action(RegionCase.SAVE, player);
 
+                    setToRegionMode(player, RegionCase.DEFAULT);
+
 
                 } else if (player.getItemInHand().equals(back.getItemStack())) {
                     setToRegionMode(player, RegionCase.DEFAULT);
@@ -313,29 +361,7 @@ public class RegionManager implements Listener {
 
                 else if (player.getItemInHand().equals(yes.getItemStack())) {
 
-                    configManager.getConfig(ConfigType.DATA).set("region.world", null);
-
-                    configManager.getConfig(ConfigType.DATA).set("region.region.first.x", null);
-                    configManager.getConfig(ConfigType.DATA).set("region.region.first.y", null);
-                    configManager.getConfig(ConfigType.DATA).set("region.region.first.z", null);
-
-                    configManager.getConfig(ConfigType.DATA).set("region.region.second.x", null);
-                    configManager.getConfig(ConfigType.DATA).set("region.region.second.y", null);
-                    configManager.getConfig(ConfigType.DATA).set("region.region.second.z", null);
-
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.first.x", null);
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.first.y", null);
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.first.z", null);
-
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.second.x", null);
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.second.y", null);
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.second.z", null);
-
-                    configManager.saveConfig(ConfigType.DATA);
-
-                    loadRegion();
-
-                    TextUtil.send("&aThe region has been deleted!", player);
+                    action(RegionCase.REMOVE, player);
 
                     setToRegionMode(player, RegionCase.DEFAULT);
 
@@ -351,5 +377,17 @@ public class RegionManager implements Listener {
     }
 
 
+    @Override
+    public void onEnable() {
 
+    }
+
+    @Override
+    public void onDisable() {
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            removeToRegionMode(player);
+        }
+
+    }
 }
