@@ -37,7 +37,7 @@ public class Item {
 
         this.action = action;
 
-        this.slot = slot;
+        this.slot = slot - 1;
 
         ItemMeta meta;
 
@@ -82,7 +82,7 @@ public class Item {
 
         this.action = action;
 
-        this.slot = slot;
+        this.slot = slot - 1;
 
         ItemMeta meta;
 

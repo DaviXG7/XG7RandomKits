@@ -6,3 +6,12 @@ softdepend: [PlaceholderAPI]
 authors: [DaviXG7]
 description: Better random kits plugin
 website: www.xg7network.com
+
+commands:
+  xg7rkregion:
+    description: "RandomKits region manager"
+    usage: "/<command> [save, set, check, delete]"
+    aliases:
+      - 7rkregion
+      - rkregion
+

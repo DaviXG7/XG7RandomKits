@@ -1,0 +1,26 @@
+spawn:
+  world:
+  x:
+  y:
+  z:
+
+region:
+  world:
+  region:
+    first:
+      x:
+      y:
+      z:
+    second:
+      x:
+      y:
+      z:
+  floor:
+    first:
+      x:
+      y:
+      z:
+    second:
+      x:
+      y:
+      z:

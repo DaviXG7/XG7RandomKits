@@ -2,6 +2,9 @@ package com.xg7network.xg7randomkits;
 
 import com.xg7network.xg7randomkits.Configs.ConfigManager;
 import com.xg7network.xg7randomkits.Configs.ConfigType;
+import com.xg7network.xg7randomkits.DefaultCommands.TabCompleter;
+import com.xg7network.xg7randomkits.Region.Handler.RegionCommand;
+import com.xg7network.xg7randomkits.Region.Handler.RegionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -43,14 +46,22 @@ public final class XG7RandomKits extends JavaPlugin {
             this.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "It's recommended to install PlaceholderAPI");
             this.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "to get more resourses!");
 
+
         }
+
+        plugin = this;
 
         placeholderapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
 
         configManager = new ConfigManager();
         for (ConfigType type : ConfigType.values()) configManager.loadConfig(type);
 
-        plugin = this;
+        RegionManager.loadRegion();
+
+        this.getCommand("xg7rkregion").setExecutor(new RegionCommand());
+        this.getCommand("xg7rkregion").setTabCompleter(new TabCompleter());
+        this.getServer().getPluginManager().registerEvents(new RegionManager(), this);
+
         // Plugin startup logic
 
     }

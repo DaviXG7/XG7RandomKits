@@ -4,5 +4,7 @@ public enum RegionCase {
 
     DEFAULT,
     SET,
-    REMOVE
+    REMOVE,
+    SAVE,
+    CHECK
 }
