@@ -1,5 +1,7 @@
 package com.xg7network.xg7randomkits.Module;
 
+import com.xg7network.xg7randomkits.Region.Handler.RegionManager;
+import com.xg7network.xg7randomkits.Region.RegionTask;
 import com.xg7network.xg7randomkits.XG7RandomKits;
 
 import java.util.ArrayList;
@@ -14,6 +16,9 @@ public class ModuleManager {
     }
 
     public void loadModules() {
+
+        modules.add(new RegionManager(plugin));
+        modules.add(new RegionTask(plugin));
 
         for (Module module : modules) {
             module.onEnable();

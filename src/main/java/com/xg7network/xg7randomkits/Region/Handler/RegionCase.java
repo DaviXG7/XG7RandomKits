@@ -1,4 +1,4 @@
-package com.xg7network.xg7randomkits.Module.Region.Handler;
+package com.xg7network.xg7randomkits.Region.Handler;
 
 public enum RegionCase {
 

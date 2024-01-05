@@ -15,3 +15,20 @@ commands:
       - 7rkregion
       - rkregion
 
+permissions:
+  xg7rk.admin:
+
+    default: op
+    description: Administradores do plugin
+    children:
+      xg7rk.region.*: true
+
+
+  xg7rk.region.*:
+    default: op
+    description: Permissões de região
+    children:
+      xg7rk.region.set: true
+      xg7rk.region.check: true
+      xg7rk.region.delete: true
+      xg7rk.region.reset: true

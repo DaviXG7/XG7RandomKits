@@ -3,8 +3,11 @@ package com.xg7network.xg7randomkits;
 import com.xg7network.xg7randomkits.Configs.ConfigManager;
 import com.xg7network.xg7randomkits.Configs.ConfigType;
 import com.xg7network.xg7randomkits.DefaultCommands.TabCompleter;
-import com.xg7network.xg7randomkits.Module.Region.Handler.RegionCommand;
-import com.xg7network.xg7randomkits.Module.Region.Handler.RegionManager;
+import com.xg7network.xg7randomkits.Module.ModuleManager;
+import com.xg7network.xg7randomkits.Region.Handler.RegionCommand;
+import com.xg7network.xg7randomkits.Region.Handler.RegionManager;
+import com.xg7network.xg7randomkits.Region.Region;
+import com.xg7network.xg7randomkits.Region.RegionEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -13,6 +16,7 @@ public final class XG7RandomKits extends JavaPlugin {
 
     public static String prefix = ChatColor.BLUE + "[XG7 " + ChatColor.RED + "R" + ChatColor.GOLD + "K" + ChatColor.YELLOW + "] " + ChatColor.RESET;
     private static XG7RandomKits plugin;
+    private static ModuleManager manager;
 
 
     public static ConfigManager configManager;
@@ -53,11 +57,21 @@ public final class XG7RandomKits extends JavaPlugin {
 
         placeholderapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
 
+
+        this.getServer().getConsoleSender().sendMessage(prefix + "Loading configs... ");
         configManager = new ConfigManager();
         for (ConfigType type : ConfigType.values()) configManager.loadConfig(type);
-
         RegionManager.loadRegion();
 
+        this.getServer().getConsoleSender().sendMessage(prefix + "Loading module... ");
+        manager = new ModuleManager(this);
+        manager.loadModules();
+
+        this.getServer().getConsoleSender().sendMessage(prefix + "Loading events: ");
+        this.getServer().getPluginManager().registerEvents(new RegionManager(this), this);
+        this.getServer().getPluginManager().registerEvents(new RegionEvents(), this);
+
+        this.getServer().getConsoleSender().sendMessage(prefix + "Loading commands: ");
         this.getCommand("xg7rkregion").setExecutor(new RegionCommand());
         this.getCommand("xg7rkregion").setTabCompleter(new TabCompleter());
         this.getServer().getPluginManager().registerEvents(new RegionManager(this), this);

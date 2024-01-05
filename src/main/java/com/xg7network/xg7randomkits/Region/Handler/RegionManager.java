@@ -1,9 +1,10 @@
-package com.xg7network.xg7randomkits.Module.Region.Handler;
+package com.xg7network.xg7randomkits.Region.Handler;
 
 import com.xg7network.xg7randomkits.Configs.ConfigType;
+import com.xg7network.xg7randomkits.Configs.PermissionType;
 import com.xg7network.xg7randomkits.Module.Module;
-import com.xg7network.xg7randomkits.Module.ModuleManager;
-import com.xg7network.xg7randomkits.Module.Region.Region;
+import com.xg7network.xg7randomkits.Region.Region;
+import com.xg7network.xg7randomkits.Region.RegionEvents;
 import com.xg7network.xg7randomkits.Utils.PluginInventories.Item;
 import com.xg7network.xg7randomkits.Utils.Text.TextUtil;
 import com.xg7network.xg7randomkits.XG7RandomKits;
@@ -33,8 +34,7 @@ public class RegionManager extends Module implements Listener {
     public static Region region;
     private static Location tempPos1;
     private static Location tempPos2;
-    private static Location tempFloor1;
-    private static Location tempFloor2;
+    private static Location tempFloor;
 
 
     //Region modes
@@ -90,7 +90,7 @@ public class RegionManager extends Module implements Listener {
 
                 TextUtil.sendActionBar("&aYou are now in set region mode!", player);
                 TextUtil.send("&bUse the blaze rod to set the region (Left click) pos 1 (Right click) pos 2;", player);
-                TextUtil.send("&bUse the stick to set the region's floor (Left click) pos 1 (Right click) pos 2;", player);
+                TextUtil.send("&bUse the stick to set the region's floor layer (Left Click!);", player);
                 TextUtil.send("&bThen use the diamond to save the region!", player);
 
                 return;
@@ -128,11 +128,12 @@ public class RegionManager extends Module implements Listener {
 
     public static void loadRegion() {
 
+        Bukkit.getConsoleSender().sendMessage(prefix + "Loading region");
+
         FileConfiguration rgconf = configManager.getConfig(ConfigType.DATA);
         Location pos1 = null;
         Location pos2 = null;
-        Location fpos1 = null;
-        Location fpos2 = null;
+        int fpos = 0;
 
         try {
 
@@ -150,26 +151,13 @@ public class RegionManager extends Module implements Listener {
                     rgconf.getInt("region.region.second.z")
             );
 
-            fpos1 = new Location(
-                    Bukkit.getWorld(rgconf.getString("region.world")),
-                    rgconf.getInt("region.floor.first.x"),
-                    rgconf.getInt("region.floor.first.y"),
-                    rgconf.getInt("region.floor.first.z")
-            );
+            fpos = rgconf.getInt("region.floor.layer");
 
-            fpos2 = new Location(
-                    Bukkit.getWorld(rgconf.getString("region.world")),
-                    rgconf.getInt("region.floor.second.x"),
-                    rgconf.getInt("region.floor.second.y"),
-                    rgconf.getInt("region.floor.second.z")
-            );
-
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
 
 
-        if (pos1 != null && pos2 != null && fpos1 != null && fpos2 != null) {
-            region = new Region(pos1, pos2, fpos1, fpos2);
+        if (pos1 != null && pos2 != null && !(fpos <= 0)) {
+            region = new Region(pos1, pos2, fpos);
         } else {
             region = null;
         }
@@ -180,7 +168,7 @@ public class RegionManager extends Module implements Listener {
         switch (regionCase) {
             case SAVE:
 
-                if (tempFloor1 != null && tempFloor2 != null && tempPos1 != null && tempPos2 != null) {
+                if (tempFloor != null && tempPos1 != null && tempPos2 != null) {
 
                     configManager.getConfig(ConfigType.DATA).set("region.world", tempPos1.getWorld().getName());
 
@@ -192,22 +180,17 @@ public class RegionManager extends Module implements Listener {
                     configManager.getConfig(ConfigType.DATA).set("region.region.second.y", tempPos2.getY());
                     configManager.getConfig(ConfigType.DATA).set("region.region.second.z", tempPos2.getZ());
 
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.first.x", tempFloor1.getX());
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.first.y", tempFloor1.getY());
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.first.z", tempFloor1.getZ());
-
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.second.x", tempFloor1.getX());
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.second.y", tempFloor1.getY());
-                    configManager.getConfig(ConfigType.DATA).set("region.floor.second.z", tempFloor1.getZ());
+                    configManager.getConfig(ConfigType.DATA).set("region.floor.layer", tempFloor.getY());
 
                     configManager.saveConfig(ConfigType.DATA);
+
+                    configManager.reloadConfig(ConfigType.DATA);
 
                     loadRegion();
 
                     TextUtil.send("&bThe region has been saved!", player);
 
-                    tempFloor1 = null;
-                    tempFloor2 = null;
+                    tempFloor = null;
                     tempPos1 = null;
                     tempPos2 = null;
 
@@ -221,9 +204,7 @@ public class RegionManager extends Module implements Listener {
 
                 if (region != null) {
 
-
-
-                    TextUtil.sendActionBar(String.format("&aRegion: &fTop: &b%d&f, &b%d&f, &b%d&f &fBottom: &b%d&f, &b%d&f, &b%d&f &6In Region: &b" + region.isInRegion(player.getLocation()), (int) region.getTopPos().getX(), (int) region.getTopPos().getY(), (int) region.getTopPos().getZ(), (int) region.getBottomPos().getX(), (int) region.getBottomPos().getY(), (int) region.getBottomPos().getZ()), player);
+                    TextUtil.sendActionBar(String.format("&aRegion: &fTop: &b%d&f, &b%d&f, &b%d&f &fBottom: &b%d&f, &b%d&f, &b%d&f &6Falling in region: &b" + RegionEvents.isFalling(player) + "&6In Region: &b" + region.isInRegion(player.getLocation()), (int) region.getTopPos().getX(), (int) region.getTopPos().getY(), (int) region.getTopPos().getZ(), (int) region.getBottomPos().getX(), (int) region.getBottomPos().getY(), (int) region.getBottomPos().getZ()), player);
 
                 } else {
                     TextUtil.sendActionBar("&cThe region has not yet been placed!", player);
@@ -241,13 +222,7 @@ public class RegionManager extends Module implements Listener {
                 configManager.getConfig(ConfigType.DATA).set("region.region.second.y", null);
                 configManager.getConfig(ConfigType.DATA).set("region.region.second.z", null);
 
-                configManager.getConfig(ConfigType.DATA).set("region.floor.first.x", null);
-                configManager.getConfig(ConfigType.DATA).set("region.floor.first.y", null);
-                configManager.getConfig(ConfigType.DATA).set("region.floor.first.z", null);
-
-                configManager.getConfig(ConfigType.DATA).set("region.floor.second.x", null);
-                configManager.getConfig(ConfigType.DATA).set("region.floor.second.y", null);
-                configManager.getConfig(ConfigType.DATA).set("region.floor.second.z", null);
+                configManager.getConfig(ConfigType.DATA).set("region.floor.layer", null);
 
                 configManager.saveConfig(ConfigType.DATA);
 
@@ -281,38 +256,25 @@ public class RegionManager extends Module implements Listener {
                 if (event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
 
                     if (player.getItemInHand().equals(regioni.getItemStack())) {
+                        if (event.getClickedBlock() != null) {
 
-                        tempPos1 = event.getClickedBlock().getLocation();
+                            tempPos1 = event.getClickedBlock().getLocation();
 
-                        TextUtil.sendActionBar(String.format("&aPos 1 has been positioned on: %d, %d, %d", (int) tempPos1.getX(), (int) tempPos1.getY(), (int) tempPos1.getZ()), player);
-
-
-
-                    } else if (player.getItemInHand().equals(floor.getItemStack())) {
-
-                        tempFloor1 = event.getClickedBlock().getLocation();
-
-                        TextUtil.sendActionBar(String.format("&aFloor Pos 1 has been positioned on: %d, %d, %d", (int) tempFloor1.getX(), (int) tempFloor1.getY(), (int) tempFloor1.getZ()), player);
-
+                            TextUtil.sendActionBar(String.format("&aPos 1 has been positioned on: %d, %d, %d", (int) tempPos1.getX(), (int) tempPos1.getY(), (int) tempPos1.getZ()), player);
+                        } else return;
                     }
 
                 } else {
+                    if (event.getClickedBlock() != null) {
+                        if (player.getItemInHand().equals(regioni.getItemStack())) {
 
-                    if (player.getItemInHand().equals(regioni.getItemStack())) {
+                            tempPos2 = event.getClickedBlock().getLocation();
 
-                        tempPos2 = event.getClickedBlock().getLocation();
-
-                        TextUtil.sendActionBar(String.format("&aPos 2 has been positioned on: %d, %d, %d", (int) tempPos2.getX(), (int) tempPos2.getY(), (int) tempPos2.getZ()), player);
+                            TextUtil.sendActionBar(String.format("&aPos 2 has been positioned on: %d, %d, %d", (int) tempPos2.getX(), (int) tempPos2.getY(), (int) tempPos2.getZ()), player);
 
 
-
-                    } else if (player.getItemInHand().equals(floor.getItemStack())) {
-
-                        tempFloor2 = event.getClickedBlock().getLocation();
-
-                        TextUtil.sendActionBar(String.format("&aFloor Pos 2 has been positioned on: %d, %d, %d", (int) tempFloor2.getX(), (int) tempFloor2.getY(), (int) tempFloor2.getZ()), player);
-
-                    }
+                        }
+                    } else return;
 
                 }
 
@@ -339,7 +301,7 @@ public class RegionManager extends Module implements Listener {
                     }
 
                     
-                } else if (player.getItemInHand().equals(exit.getItemStack())) {;
+                } else if (player.getItemInHand().equals(exit.getItemStack())) {
 
                     removeToRegionMode(player);
 
@@ -350,11 +312,16 @@ public class RegionManager extends Module implements Listener {
 
                     action(RegionCase.SAVE, player);
 
-                    setToRegionMode(player, RegionCase.DEFAULT);
+                    if (player.hasPermission(PermissionType.REGION.getPerm())) setToRegionMode(player, RegionCase.DEFAULT);
+
+                    else removeToRegionMode(player);
 
 
                 } else if (player.getItemInHand().equals(back.getItemStack())) {
-                    setToRegionMode(player, RegionCase.DEFAULT);
+                    if (player.hasPermission(PermissionType.REGION.getPerm())) setToRegionMode(player, RegionCase.DEFAULT);
+
+                    else removeToRegionMode(player);
+
                 }
 
 
@@ -368,6 +335,24 @@ public class RegionManager extends Module implements Listener {
 
                 } else if (player.getItemInHand().equals(no.getItemStack())) {
                     setToRegionMode(player, RegionCase.DEFAULT);
+
+                } else if (player.getItemInHand().equals(floor.getItemStack())) {
+
+                    if (tempPos1 != null && tempPos2 != null) {
+
+                        if (event.getClickedBlock().getY() < Math.min(tempPos1.getBlockY(), tempPos2.getBlockY())) {
+                            TextUtil.sendActionBar("&cFloor layer cannot be less than bottom region layer!", player);
+                        } else {
+                            if (event.getClickedBlock() != null) {
+                                tempFloor = event.getClickedBlock().getLocation();
+                                TextUtil.sendActionBar(String.format("&aFloor layer has been positioned on layer: %d", (int) tempFloor.getY()), player);
+                            } else return;
+                        }
+
+                    } else {
+                        TextUtil.sendActionBar("&cSet the region first!", player);
+                    }
+
                 }
 
             }
@@ -379,6 +364,8 @@ public class RegionManager extends Module implements Listener {
 
     @Override
     public void onEnable() {
+
+        loadRegion();
 
     }
 

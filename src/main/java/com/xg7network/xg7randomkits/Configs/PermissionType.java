@@ -6,7 +6,7 @@ public enum PermissionType {
 
     REGION("region.*"),
     REGION_SET("region.set"),
-    REGION_SAVE("region.save"),
+    REGION_RESET("region.reset"),
     REGION_CHECK("region.check"),
     REGION_DELETE("region.delete"),
 

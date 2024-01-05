@@ -23,6 +23,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                     results.add("save");
                     results.add("check");
                     results.add("cancel");
+                    results.add("reset");
                 }
                 break;
         }

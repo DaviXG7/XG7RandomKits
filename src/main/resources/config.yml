@@ -1,2 +1,11 @@
 enabled-worlds:
   - "world"
+
+region:
+
+  floor-block: grass_block
+
+  auto-reset: true
+
+  #In minutes
+  reset-cooldown: 30

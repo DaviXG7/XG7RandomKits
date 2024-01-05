@@ -15,12 +15,7 @@ region:
       x:
       y:
       z:
+  #From this layer the block will be
+  #placed until the end of the region
   floor:
-    first:
-      x:
-      y:
-      z:
-    second:
-      x:
-      y:
-      z:
+    layer:
